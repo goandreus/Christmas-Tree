@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class TreePage extends StatelessWidget {
@@ -5,7 +7,7 @@ class TreePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _offsets = List.generate(10, (i) => i);
+    final _offsets = _generateOffsets(100, 0.05).toList(growable: false);
     return Material(
       color: Colors.black,
       child: Container(
@@ -22,7 +24,7 @@ class TreePage extends StatelessWidget {
             SizedBox(
                 height: 8,
             ),
-            for (final x in _offsets) Light(),
+            for (final x in _offsets) Light( x: x,),
             Center(
               child: Text('Merry Christmas')
             )
@@ -31,29 +33,65 @@ class TreePage extends StatelessWidget {
       ),
     );
   }
+  static Iterable<double> _generateOffsets(int count, double acceleration)sync*{
+    double x = 0;
+    yield x; 
+    double ax = acceleration;
+    for (int i = 0; i < count; i++) {
+      x += ax;
+      ax *= 1.5;
+
+      final maxLateral = min(1, 1 / count);
+      if(x.abs() > maxLateral){
+        x = maxLateral * x.sign;
+        ax = x >= 0 ? - acceleration : acceleration;
+      }
+      yield x;
+    }
+  }
 }
 
 class Light extends StatefulWidget {
-  Light({Key key}) : super(key: key);
+  Light({Key key, this.x}) :
+    period = 500 + (x.abs() * 5000).floor(),
+    color = festiveColors[Random().nextInt(4)],
+    super(key: key);
+
+  static final festiveColors = [Colors.red, Colors.green, Colors.yellow, Colors.orange];
+
+  final double x;
+
+  final int period;
+
+  final Color color;
 
   @override
   _LightState createState() => _LightState();
 }
 
 class _LightState extends State<Light> {
+  Color _newColor = Colors.white;
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(10),
-      child: SizedBox(
-        height: 10,
-        child: Align(
-          alignment: Alignment.center,
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: Container(
-              color: Colors.white,
-            ),
+    return SizedBox(
+      height: 10,
+      child: Align(
+        alignment: Alignment(widget.x, 0.0),
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: TweenAnimationBuilder(
+            duration: Duration(milliseconds: widget.period),
+            tween: ColorTween(begin: widget.color, end: _newColor),
+            onEnd: (){
+              setState(() {
+                _newColor = _newColor == Colors.white ? widget.color : Colors.white;
+              });
+            },
+            builder: (_, color, __){
+              return Container(
+                color: color,
+              );
+            },
           ),
         ),
       ),
