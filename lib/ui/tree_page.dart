@@ -12,7 +12,7 @@ class TreePage extends StatelessWidget {
       color: Colors.black,
       child: Container(
         constraints: BoxConstraints(maxWidth: 700, minWidth: 700),
-        padding:  EdgeInsets.symmetric(vertical: 40, horizontal:8),
+        padding: EdgeInsets.symmetric(vertical: 40, horizontal: 8),
         child: ListView(
           children: [
             Center(
@@ -22,29 +22,33 @@ class TreePage extends StatelessWidget {
               ),
             ),
             SizedBox(
-                height: 8,
+              height: 8,
             ),
-            for (final x in _offsets) Light( x: x,),
-            Center(
-              child: Text('Merry Christmas')
-            )
+            for (final x in _offsets)
+              Light(
+                x: x,
+              ),
+            Center(child: Text('Merry Christmas'))
           ],
         ),
       ),
     );
   }
-  static Iterable<double> _generateOffsets(int count, double acceleration)sync*{
+
+  static Iterable<double> _generateOffsets(
+      int count, double acceleration) sync* {
     double x = 0;
-    yield x; 
+    yield x;
+
     double ax = acceleration;
     for (int i = 0; i < count; i++) {
       x += ax;
       ax *= 1.5;
 
-      final maxLateral = min(1, 1 / count);
-      if(x.abs() > maxLateral){
+      final maxLateral = min(1, i / count);
+      if (x.abs() > maxLateral) {
         x = maxLateral * x.sign;
-        ax = x >= 0 ? - acceleration : acceleration;
+        ax = x >= 0 ? -acceleration : acceleration;
       }
       yield x;
     }
@@ -52,12 +56,17 @@ class TreePage extends StatelessWidget {
 }
 
 class Light extends StatefulWidget {
-  Light({Key key, this.x}) :
-    period = 500 + (x.abs() * 5000).floor(),
-    color = festiveColors[Random().nextInt(4)],
-    super(key: key);
+  Light({Key key, this.x})
+      : period = 500 + (x.abs() * 5000).floor(),
+        color = festiveColors[Random().nextInt(4)],
+        super(key: key);
 
-  static final festiveColors = [Colors.red, Colors.green, Colors.yellow, Colors.orange];
+  static final festiveColors = [
+    Colors.red,
+    Colors.green,
+    Colors.yellow,
+    Colors.orange
+  ];
 
   final double x;
 
@@ -82,12 +91,13 @@ class _LightState extends State<Light> {
           child: TweenAnimationBuilder(
             duration: Duration(milliseconds: widget.period),
             tween: ColorTween(begin: widget.color, end: _newColor),
-            onEnd: (){
+            onEnd: () {
               setState(() {
-                _newColor = _newColor == Colors.white ? widget.color : Colors.white;
+                _newColor =
+                    _newColor == Colors.white ? widget.color : Colors.white;
               });
             },
-            builder: (_, color, __){
+            builder: (_, color, __) {
               return Container(
                 color: color,
               );
